@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: #0a0e0d;
+  color: #e6f1ec;
+}
+
+/* Scrollbar estilo terminal */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0e0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c2b25;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+@layer components {
+  .panel {
+    @apply bg-term-panel border border-term-border rounded-lg;
+  }
+  .ticker {
+    @apply font-mono text-xs uppercase tracking-wider text-term-muted;
+  }
+  .pill {
+    @apply inline-flex items-center rounded px-2 py-0.5 text-[11px] font-semibold;
+  }
+}
