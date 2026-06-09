@@ -1,4 +1,4 @@
-import type { DashboardStats, Prediction, ValueBet } from "./types";
+import type { Alert, BacktestResult, DashboardStats, Prediction, ValueBet } from "./types";
 
 // Datos de respaldo para que el dashboard se renderice sin backend en marcha.
 // Coinciden con los valores que produce el motor (backend/app/ml/demo.py).
@@ -96,3 +96,74 @@ export const mockPredictions: Prediction[] = [
 export const mockValueBets: ValueBet[] = mockPredictions
   .flatMap((p) => p.value_bets)
   .sort((a, b) => b.quality_score - a.quality_score);
+
+
+export const mockAlerts: Alert[] = [
+  {
+    type: "value_bet",
+    severity: "success",
+    match_id: 1,
+    match: "Manchester City vs Brighton",
+    title: "Value bet · Pick Premium",
+    message: "Gana Manchester City @1.62 · edge +32.1%",
+    created_at: new Date().toISOString(),
+  },
+  {
+    type: "value_bet",
+    severity: "success",
+    match_id: 3,
+    match: "Real Betis vs Atletico Madrid",
+    title: "Value bet · Pick Premium",
+    message: "Gana Atletico Madrid @2.20 · edge +30.1%",
+    created_at: new Date().toISOString(),
+  },
+  {
+    type: "arbitrage",
+    severity: "warning",
+    match_id: 2,
+    match: "Arsenal vs Wolves",
+    title: "Oportunidad de arbitraje",
+    message: "Sobre-cuotas 1X2 suman 98.4% (<100%)",
+    created_at: new Date().toISOString(),
+  },
+  {
+    type: "high_confidence",
+    severity: "info",
+    match_id: 1,
+    match: "Manchester City vs Brighton",
+    title: "Pick de alta confianza",
+    message: "Gana Manchester City · confianza 82/100",
+    created_at: new Date().toISOString(),
+  },
+];
+
+// Resultado de backtest de ejemplo (coherente con el motor en Python).
+export const mockBacktest: BacktestResult = {
+  initial_bankroll: 1000,
+  final_bankroll: 1169.03,
+  profit: 169.03,
+  roi: 16.9,
+  yield_pct: 5.0,
+  win_rate: 51.56,
+  total_bets: 128,
+  wins: 66,
+  losses: 62,
+  total_staked: 3380.6,
+  max_drawdown: 84.2,
+  max_drawdown_pct: 25.19,
+  longest_losing_streak: 7,
+  by_market: {
+    "O/U 2.5": { bets: 44, wins: 25, win_rate: 56.8, staked: 1180, profit: 214.5, roi: 18.18 },
+    "1X2": { bets: 51, wins: 22, win_rate: 43.1, staked: 1420, profit: -271.4, roi: -19.11 },
+    BTTS: { bets: 33, wins: 19, win_rate: 57.6, staked: 780.6, profit: -20.1, roi: -2.57 },
+  },
+  by_sport: {
+    football: { bets: 78, wins: 39, win_rate: 50, staked: 2050, profit: 21.5, roi: 1.05 },
+    basketball: { bets: 32, wins: 18, win_rate: 56.3, staked: 880, profit: 185.2, roi: 21.05 },
+    tennis: { bets: 18, wins: 9, win_rate: 50, staked: 450.6, profit: 6.4, roi: 1.42 },
+  },
+  equity_curve: Array.from({ length: 30 }, (_, i) => ({
+    x: i,
+    bankroll: Math.round((1000 + i * 5.6 + Math.sin(i / 2) * 30) * 100) / 100,
+  })),
+};

@@ -1,3 +1,5 @@
+import AuthStatus from "./AuthStatus";
+
 export default function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-term-border bg-term-bg/95 backdrop-blur">
@@ -15,16 +17,17 @@ export default function Header() {
         </div>
 
         <nav className="hidden gap-6 font-mono text-xs uppercase tracking-wider text-term-muted md:flex">
-          <a className="text-term-green" href="#">Dashboard</a>
-          <a className="hover:text-term-text" href="#value-bets">Value Bets</a>
-          <a className="hover:text-term-text" href="#predictions">Pronósticos</a>
-          <a className="hover:text-term-text" href="#">Bankroll</a>
-          <a className="hover:text-term-text" href="#">Backtesting</a>
+          <a className="hover:text-term-green" href="/">Dashboard</a>
+          <a className="hover:text-term-text" href="/#value-bets">Value Bets</a>
+          <a className="hover:text-term-text" href="/#predictions">Pronósticos</a>
+          <a className="hover:text-term-text" href="/bankroll">Bankroll</a>
+          <a className="hover:text-term-text" href="/backtesting">Backtesting</a>
+          <a className="hover:text-term-text" href="/alerts">Alertas</a>
         </nav>
 
         <div className="flex items-center gap-2">
           <span className="pill bg-term-green/15 text-term-green">● LIVE</span>
-          <span className="pill bg-term-border text-term-muted">PRO</span>
+          <AuthStatus />
         </div>
       </div>
     </header>

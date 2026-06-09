@@ -49,6 +49,53 @@ export interface Prediction {
   value_bets: ValueBet[];
 }
 
+export interface MarketBreakdown {
+  bets: number;
+  wins: number;
+  win_rate: number;
+  staked: number;
+  profit: number;
+  roi: number;
+}
+
+export interface BacktestResult {
+  initial_bankroll: number;
+  final_bankroll: number;
+  profit: number;
+  roi: number;
+  yield_pct: number;
+  win_rate: number;
+  total_bets: number;
+  wins: number;
+  losses: number;
+  total_staked: number;
+  max_drawdown: number;
+  max_drawdown_pct: number;
+  longest_losing_streak: number;
+  by_market: Record<string, MarketBreakdown>;
+  by_sport: Record<string, MarketBreakdown>;
+  equity_curve: { x: number; bankroll: number }[];
+}
+
+export interface Alert {
+  type: "value_bet" | "high_confidence" | "odds_movement" | "arbitrage";
+  severity: "success" | "warning" | "info";
+  match_id: number;
+  match: string;
+  title: string;
+  message: string;
+  created_at: string;
+}
+
+export interface StakeResponse {
+  method: string;
+  kelly_fraction: number;
+  stake: number;
+  stake_units: number;
+  risk_pct: number;
+  capped: boolean;
+}
+
 export interface Match {
   id: number;
   league: string;

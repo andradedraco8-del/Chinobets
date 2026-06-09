@@ -93,7 +93,9 @@ export default async function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {predictions.map((p) => (
-              <PredictionCard key={p.match_id} p={p} />
+              <a key={p.match_id} href={`/match/${p.match_id}`} className="block transition-transform hover:-translate-y-0.5">
+                <PredictionCard p={p} />
+              </a>
             ))}
           </div>
         </section>

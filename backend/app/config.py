@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     SPORTRADAR_KEY: str = ""
     THESPORTSDB_KEY: str = "3"  # clave pública de pruebas
 
+    # The Odds API: deportes/ligas a sincronizar y región de cuotas.
+    ODDS_API_SPORTS: list[str] = [
+        "soccer_epl",
+        "soccer_spain_la_liga",
+        "soccer_italy_serie_a",
+        "basketball_nba",
+    ]
+    ODDS_API_REGIONS: str = "eu"
+
     # Parámetros del motor
     DEFAULT_EDGE_THRESHOLD: float = 0.03
     DEFAULT_MAX_EXPOSURE_PCT: float = 0.05

@@ -14,7 +14,9 @@ from ..database import get_db
 from ..models import User
 from ..models.user import UserRole
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Esquema de hashing: pbkdf2_sha256 es Python puro (hashlib), no depende de
+# bcrypt ni requiere compilacion, y evita el limite de 72 bytes de bcrypt.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
