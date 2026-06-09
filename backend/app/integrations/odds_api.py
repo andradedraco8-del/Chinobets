@@ -34,6 +34,19 @@ def _sport_from_key(sport_key: str) -> str:
 class OddsApiClient(BaseProviderClient):
     base_url = "https://api.the-odds-api.com/v4"
 
+    def list_sports(self) -> list[dict]:
+        """Lista de competiciones activas ahora mismo en The Odds API."""
+        if not self.enabled:
+            return []
+        data = self._get("/sports", {"apiKey": self.api_key})
+        if not isinstance(data, list):
+            return []
+        return [
+            {"key": s.get("key"), "title": s.get("title"), "group": s.get("group")}
+            for s in data
+            if s.get("active")
+        ]
+
     def get_matches(self, sport_key: str = "soccer_epl", regions: str = "eu") -> list[NormalizedMatch]:
         """Próximos eventos (equipos + hora + cuotas) de un deporte/liga."""
         if not self.enabled:

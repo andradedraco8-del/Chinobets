@@ -131,24 +131,26 @@ def _stats_for(team_name: str, strengths: dict[str, float]) -> dict | None:
     return _strength_to_stats(s) if s is not None else None
 
 
-def sync_all(db: Session, clear_existing: bool = False) -> dict:
+def sync_all(db: Session, clear_existing: bool = False, sports: list[str] | None = None) -> dict:
     """
     Sincroniza desde los proveedores con clave configurada.
 
     `clear_existing`: si True, elimina los partidos actuales (p. ej. los de
     demostración) antes de insertar los reales.
+    `sports`: lista de 'sport_key' de The Odds API a sincronizar; si es None,
+    usa la lista por defecto de la configuración.
     """
     report: dict = {"providers": [], "created": 0, "updated": 0, "errors": [], "sports": []}
     collected: list[NormalizedMatch] = []
+    sport_keys = sports or settings.ODDS_API_SPORTS
 
     # --- The Odds API (principal: equipos + cuotas) ---
     odds_client = OddsApiClient(settings.ODDS_API_KEY)
     if odds_client.enabled:
         report["providers"].append("odds_api")
-        for sport_key in settings.ODDS_API_SPORTS:
+        for sport_key in sport_keys:
             found = odds_client.get_matches(sport_key=sport_key, regions=settings.ODDS_API_REGIONS)
-            if found:
-                report["sports"].append({"sport": sport_key, "events": len(found)})
+            report["sports"].append({"sport": sport_key, "events": len(found)})
             collected += found
 
     # --- API-Football (opcional, fixtures con marcador) ---
