@@ -79,6 +79,20 @@ def _blend(dists: list[tuple[dict, float]]) -> dict:
     return out
 
 
+def _ml_probabilities(home: "TeamForm", away: "TeamForm") -> dict | None:
+    """Probabilidades 1X2 del modelo ML supervisado, o None si no está listo."""
+    try:
+        from .features import build_features
+        from .ml_models import get_predictor
+
+        predictor = get_predictor()
+        if not predictor.ready:
+            return None
+        return predictor.predict_proba(build_features(home, away))
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def predict_match(
     home: TeamForm,
     away: TeamForm,
@@ -86,6 +100,7 @@ def predict_match(
     league_avg_goals: float = 1.35,
     weights: dict | None = None,
     edge_threshold: float = 0.03,
+    use_ml: bool = True,
 ) -> MatchPrediction:
     """
     Genera la predicción completa de un partido.
@@ -93,8 +108,12 @@ def predict_match(
     `odds` es un dict de cuotas por selección, ej:
         {"home": 2.10, "draw": 3.30, "away": 3.60,
          "over_2_5": 1.95, "under_2_5": 1.90, "btts_yes": 1.85, "btts_no": 1.95}
+
+    Si `use_ml` y hay un modelo ML entrenado disponible, su predicción 1X2 se
+    incorpora al ensemble; en caso contrario sólo intervienen los modelos
+    estadísticos (Poisson/Dixon-Coles/ELO).
     """
-    weights = weights or {"poisson": 0.30, "dixon_coles": 0.45, "elo": 0.25}
+    weights = weights or {"poisson": 0.25, "dixon_coles": 0.35, "elo": 0.20, "ml": 0.20}
 
     # Modelo de goles: usa xG reciente para modular ataque/defensa.
     home_attack = home.attack * (home.xg_for / 1.4)
@@ -106,13 +125,24 @@ def predict_match(
     dc = dixon_coles.predict_dixon_coles(home_attack, home_defense, away_attack, away_defense, league_avg_goals)
     elo_probs = elo.elo_match_probabilities(home.elo, away.elo)
 
-    one_x_two = _blend(
-        [
-            ({"home": pois.home, "draw": pois.draw, "away": pois.away}, weights["poisson"]),
-            ({"home": dc.home, "draw": dc.draw, "away": dc.away}, weights["dixon_coles"]),
-            (elo_probs, weights["elo"]),
-        ]
-    )
+    blend_inputs = [
+        ({"home": pois.home, "draw": pois.draw, "away": pois.away}, weights.get("poisson", 0.0)),
+        ({"home": dc.home, "draw": dc.draw, "away": dc.away}, weights.get("dixon_coles", 0.0)),
+        (elo_probs, weights.get("elo", 0.0)),
+    ]
+
+    # Aporte del modelo ML (Random Forest / XGBoost / LightGBM) si está listo.
+    models_used = ["poisson", "dixon_coles", "elo"]
+    ml_probs = None
+    if use_ml and weights.get("ml", 0.0) > 0:
+        ml_probs = _ml_probabilities(home, away)
+        if ml_probs is not None:
+            blend_inputs.append((ml_probs, weights["ml"]))
+            from .ml_models import get_predictor
+
+            models_used.append(get_predictor().model_name)
+
+    one_x_two = _blend(blend_inputs)
 
     probabilities = {
         "1x2": {k: round(v, 4) for k, v in one_x_two.items()},
@@ -123,6 +153,7 @@ def predict_match(
             "away": round(dc.expected_away_goals, 2),
         },
         "most_likely_score": dc.most_likely_score,
+        "models": models_used,
     }
 
     # Selección principal = resultado 1X2 más probable.

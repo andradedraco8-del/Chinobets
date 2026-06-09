@@ -15,11 +15,12 @@ export default function Header() {
         </div>
 
         <nav className="hidden gap-6 font-mono text-xs uppercase tracking-wider text-term-muted md:flex">
-          <a className="text-term-green" href="#">Dashboard</a>
-          <a className="hover:text-term-text" href="#value-bets">Value Bets</a>
-          <a className="hover:text-term-text" href="#predictions">Pronósticos</a>
-          <a className="hover:text-term-text" href="#">Bankroll</a>
-          <a className="hover:text-term-text" href="#">Backtesting</a>
+          <a className="hover:text-term-green" href="/">Dashboard</a>
+          <a className="hover:text-term-text" href="/#value-bets">Value Bets</a>
+          <a className="hover:text-term-text" href="/#predictions">Pronósticos</a>
+          <a className="hover:text-term-text" href="/bankroll">Bankroll</a>
+          <a className="hover:text-term-text" href="/backtesting">Backtesting</a>
+          <a className="hover:text-term-text" href="/alerts">Alertas</a>
         </nav>
 
         <div className="flex items-center gap-2">

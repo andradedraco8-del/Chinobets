@@ -154,3 +154,51 @@ docker-compose up --build
 
 > ⚠️ **Juego responsable**: ProTipster AI es una herramienta analítica. Ninguna
 > apuesta garantiza beneficios; apuesta sólo lo que puedas permitirte perder.
+
+
+---
+
+## 8. Funcionalidades avanzadas (v0.2)
+
+### Ingesta de datos reales
+Clientes en `backend/app/integrations/` para **API-Football**, **The Odds API**
+(consenso de cuotas por mediana), **Sportradar** y **TheSportsDB**. Todos
+degradan con elegancia si no hay clave o conectividad.
+
+- `GET /api/ingest/providers` — estado de cada proveedor.
+- `POST /api/ingest/sync` *(admin)* — vuelca fixtures/cuotas a la BD (upsert + auditoría).
+
+### Ensemble con Machine Learning
+`backend/app/ml/ml_models.py` detecta en runtime el mejor backend disponible
+(**LightGBM → XGBoost → RandomForest**) y, si no hay ninguno, el motor usa sólo
+los modelos estadísticos. Features en `features.py`, entrenamiento en
+`training.py` (sintético o desde histórico).
+
+- `GET /api/ml/status` — backend detectado y si está entrenado.
+- `POST /api/ml/train?source=synthetic|history` *(admin)*.
+
+### Backtesting
+`backend/app/ml/backtest.py` (Python puro). Calcula ROI, yield, win rate,
+**máximo drawdown**, racha perdedora, rentabilidad por mercado/deporte y equity
+curve.
+
+- `GET /api/backtest/run?method=&edge_threshold=&n=&initial_bankroll=&compounding=`
+
+### Alertas
+`GET /api/alerts` genera en tiempo real avisos de value bets, picks de alta
+confianza y **oportunidades de arbitraje** (sobre-cuotas 1X2 < 100%).
+
+### Pantallas del frontend
+- `/` Dashboard · `/match/[id]` detalle del partido con explicación IA
+- `/bankroll` calculadora de stake (Kelly y variantes)
+- `/backtesting` backtest interactivo con equity curve y desgloses
+- `/alerts` centro de alertas
+
+```bash
+# Entrenar el modelo ML (requiere scikit-learn / xgboost / lightgbm)
+python -m app.ml.training
+# Backtest por consola
+python -c "from app.services.backtest_service import generate_history; \
+from app.ml.backtest import run_backtest; \
+print(run_backtest(generate_history(), 1000).as_dict()['roi'])"
+```
