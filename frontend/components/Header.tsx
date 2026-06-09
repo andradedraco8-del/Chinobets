@@ -1,3 +1,5 @@
+import AuthStatus from "./AuthStatus";
+
 export default function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-term-border bg-term-bg/95 backdrop-blur">
@@ -25,7 +27,7 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           <span className="pill bg-term-green/15 text-term-green">● LIVE</span>
-          <span className="pill bg-term-border text-term-muted">PRO</span>
+          <AuthStatus />
         </div>
       </div>
     </header>
